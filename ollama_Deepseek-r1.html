@@ -13,7 +13,10 @@
     <div class="container">
         <!-- 历史记录 -->
         <aside>
-            <div class="top"><i class="fas fa-history"></i> 历史记录</div>
+            <div class="top">
+                <i class="fas fa-history"> 历史记录</i>
+                <i class="fas fa-add newadd">新建会话</i>
+            </div>
             <ul>
                 <!-- 历史记录将动态加载 -->
             </ul>
@@ -21,7 +24,7 @@
                 <div class="remove-text"><i class="fas fa-trash-alt"></i> 清空历史记录</div>
             </div>
         </aside>
-        
+
         <main>
             <div class="header">
                 <div class="chat-title-container">
@@ -41,7 +44,7 @@
                 <input type="text" class="search-input" placeholder="有问题尽管问我..." autofocus>
                 <div class="search-button"><i class="fas fa-paper-plane"></i> 发送</div>
             </div>
-            
+
             <!-- 标题编辑模态框 -->
             <div class="modal" id="titleEditModal">
                 <div class="modal-content">
@@ -58,7 +61,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 删除确认模态框 -->
             <div class="modal" id="deleteConfirmModal">
                 <div class="modal-content">

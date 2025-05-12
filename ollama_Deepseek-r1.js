@@ -303,10 +303,11 @@ function handleCopyButtonClick(event) {
     navigator.clipboard.writeText(code)
       .then(() => showCopySuccess(button))
     // .catch(() => fallbackCopyMethod(code, button));
-  } else {
-    // 回退到传统方法
-    fallbackCopyMethod(code, button);
   }
+  // else {
+  //   // 回退到传统方法
+  //   fallbackCopyMethod(code, button);
+  // }
 }
 
 // // 传统的复制方法（兼容性更好）
@@ -709,6 +710,7 @@ async function Send() {
     if (aiResponse) {
       console.log("收到AI响应，长度:", aiResponse.length);
       session.messages.push({ role: "chat", content: aiResponse });
+      SessionManager.saveHistory(history)
     }
 
   } catch (error) {
@@ -894,6 +896,10 @@ function setupEventListeners() {
 
   // 代码复制功能
   document.body.addEventListener('click', handleCopyButtonClick);
+  // 新开会话
+  document.querySelector('.newadd').addEventListener('click', () => {
+    createNewChat()
+  })
 }
 
 // 创建新会话并重置当前页面
