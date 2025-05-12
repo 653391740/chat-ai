@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepseek-r1 AI助手</title>
+    <link rel="stylesheet" href="./ollama_Deepseek-r1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- 历史记录 -->
+        <aside>
+            <div class="top"><i class="fas fa-history"></i> 历史记录</div>
+            <ul>
+                <!-- 历史记录将动态加载 -->
+            </ul>
+            <div class="remove">
+                <div class="remove-text"><i class="fas fa-trash-alt"></i> 清空历史记录</div>
+            </div>
+        </aside>
+        
+        <main>
+            <div class="header">
+                <div class="chat-title-container">
+                    <div class="chat-title">
+                        <span class="title-text">新对话</span>
+                        <div class="title-actions">
+                            <button class="title-edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="title-delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <!-- 内容将动态加载 -->
+            </div>
+            <div class="search">
+                <input type="text" class="search-input" placeholder="有问题尽管问我..." autofocus>
+                <div class="search-button"><i class="fas fa-paper-plane"></i> 发送</div>
+            </div>
+            
+            <!-- 标题编辑模态框 -->
+            <div class="modal" id="titleEditModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>编辑对话标题</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="titleInput" placeholder="输入新标题">
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancelTitleEdit" class="modal-btn cancel-btn">取消</button>
+                        <button id="saveTitleEdit" class="modal-btn save-btn">保存</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 删除确认模态框 -->
+            <div class="modal" id="deleteConfirmModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>删除对话</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定要删除当前对话吗？此操作不可恢复。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancelDelete" class="modal-btn cancel-btn">取消</button>
+                        <button id="confirmDelete" class="modal-btn delete-btn">删除</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+    <script src="./ollama_Deepseek-r1.js"></script>
+</body>
+
+</html>
