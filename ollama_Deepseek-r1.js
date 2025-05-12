@@ -731,7 +731,9 @@ async function Send() {
 
     // 显示错误通知
     showNotification('请求发生错误，请检查网络连接或Ollama服务是否正常运行。', 'error', 5000);
+    // 无论失败还是成功都会执行
   } finally {
+    // 渲染历史记录
     SessionManager.renderHistoryList();
   }
 }
