@@ -113,15 +113,18 @@ async function streamResponse(prompt) {
     if (!STATE.chatHistory) {
       STATE.chatHistory = [];
     }
-
     // Add user message to history
     STATE.chatHistory.push({ role: "user", content: prompt });
+
+    // 显示加载动画
+    const loadingElement = showLoading();
 
     // 有消息后显示标题
     updateTitleVisibility();
 
     // 滚动到底部以便看到加载动画
     scrollToBottom();
+
 
     const response = await fetch(CONFIG.API_URL, {
       method: "POST",
@@ -151,10 +154,10 @@ async function streamResponse(prompt) {
     fragment.appendChild(left);
     content.appendChild(fragment);
 
-    scrollToBottom(); // 添加AI消息框后滚动
+    // 隐藏加载动画
+    hideLoading(loadingElement);
 
-    // 显示加载动画
-    const loadingElement = showLoading();
+    scrollToBottom(); // 添加AI消息框后滚动
 
     let result = "";
     let decoder = new TextDecoder();
@@ -169,13 +172,28 @@ async function streamResponse(prompt) {
         result += parsed.response;
         left.innerHTML = chat(result);
         scrollToBottom();
+
+        // 添加定期保存逻辑  
+        if (STATE.currentSessionId) {
+          const history = SessionManager.getHistory();
+          const session = history.find(s => s.id === STATE.currentSessionId);
+          if (session) {
+            // 更新当前会话中最后一条AI消息，如果不存在则添加一条  
+            const lastMessage = session.messages[session.messages.length - 1];
+            if (lastMessage && lastMessage.role === "chat") {
+              lastMessage.content = result;
+            } else {
+              session.messages.push({ role: "chat", content: result });
+            }
+            // 保存到localStorage  
+            SessionManager.saveHistory(history);
+          }
+        }
       } catch (error) {
         console.error("解析响应失败:", error);
       }
     }
     STATE.chatHistory.push({ role: "chat", content: result });
-    // 隐藏加载动画
-    hideLoading(loadingElement);
     return result;
   } catch (error) {
     console.error("Stream Error:", error);
@@ -676,8 +694,6 @@ async function Send() {
     let session;
     let history = SessionManager.getHistory();
 
-
-
     if (!STATE.currentSessionId || !history.find(s => s.id === STATE.currentSessionId)) {
       // 只在没有当前会话ID或找不到对应会话时创建新会话
       console.log("创建新会话");
@@ -691,8 +707,6 @@ async function Send() {
       // console.log("使用现有会话:", STATE.currentSessionId);
       session = history.find(s => s.id === STATE.currentSessionId);
     }
-
-    console.log(history);
     // 添加用户消息
     session.messages.push({ role: "user", content: inputs });
     // 立即保存用户消息
@@ -823,6 +837,16 @@ function setupEventListeners() {
 
   // 使用事件委托处理历史记录交互
   document.querySelector('aside ul').addEventListener('click', (e) => {
+    // 保存当前聊天状态  
+    if (STATE.currentSessionId && STATE.chatHistory && STATE.chatHistory.length > 0) {
+      const history = SessionManager.getHistory();
+      const session = history.find(s => s.id === STATE.currentSessionId);
+      if (session) {
+        session.messages = [...STATE.chatHistory];
+        SessionManager.saveHistory(history);
+      }
+    }
+
     // 处理三点菜单图标点击
     if (e.target.closest('.history-actions-icon')) {
       e.stopPropagation();

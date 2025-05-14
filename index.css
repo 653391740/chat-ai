@@ -65,6 +65,7 @@ body {
     align-items: center;
   }
 }
+
 .newadd {
   padding: 0 10px;
   border-radius: 20px;
@@ -267,8 +268,8 @@ body {
 .container main .content .message .content-text {
   line-height: 1.6;
 
-  ol li {
-    margin-left: 15px;
+  ol {
+    margin: 20px;
   }
 }
 
