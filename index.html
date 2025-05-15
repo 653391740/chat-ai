@@ -2,83 +2,92 @@
 <html lang="zh-CN">
 
 <head>
+    <!-- 基本元数据设置 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Deepseek-r1 AI助手 - 智能对话系统">
     <title>Deepseek-r1 AI助手</title>
+    <!-- 样式表引入 -->
     <link rel="stylesheet" href="./index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
+    <!-- 主容器 -->
     <div class="container">
-        <!-- 历史记录 -->
-        <aside>
+        <!-- 侧边栏：历史记录区域 -->
+        <aside class="history-sidebar">
             <div class="top">
-                <i class="fas fa-history"> 历史记录</i>
-                <i class="fas fa-add newadd">新建会话</i>
+                <i class="fas fa-history" aria-label="历史记录"> 历史记录</i>
+                <i class="fas fa-add newadd" role="button" aria-label="新建会话">新建会话</i>
             </div>
-            <ul>
+            <ul class="history-list" aria-label="对话历史列表">
                 <!-- 历史记录将动态加载 -->
             </ul>
             <div class="remove">
-                <div class="remove-text"><i class="fas fa-trash-alt"></i> 清空历史记录</div>
+                <div class="remove-text" role="button" aria-label="清空历史记录"><i class="fas fa-trash-alt"></i> 清空历史记录</div>
             </div>
         </aside>
 
-        <main>
-            <div class="header">
+        <!-- 主要内容区域 -->
+        <main class="chat-main">
+            <!-- 对话标题区域 -->
+            <header class="chat-header">
                 <div class="chat-title-container">
                     <div class="chat-title">
-                        <span class="title-text">新对话</span>
+                        <span class="title-text" role="heading" aria-level="1">新对话</span>
                         <div class="title-actions">
-                            <button class="title-edit-btn"><i class="fas fa-edit"></i></button>
-                            <button class="title-delete-btn"><i class="fas fa-trash"></i></button>
+                            <button class="title-edit-btn" aria-label="编辑标题"><i class="fas fa-edit"></i></button>
+                            <button class="title-delete-btn" aria-label="删除对话"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="content">
+            </header>
+            <!-- 对话内容区域 -->
+            <section class="content" role="log" aria-label="对话内容">
                 <!-- 内容将动态加载 -->
-            </div>
-            <div class="search">
-                <input type="text" class="search-input" placeholder="有问题尽管问我..." autofocus>
-                <div class="search-button"><i class="fas fa-paper-plane"></i> 发送</div>
+            </section>
+            <!-- 输入区域 -->
+            <div class="search" role="form" aria-label="消息输入区域">
+                <input type="text" class="search-input" placeholder="有问题尽管问我..." aria-label="输入消息" autofocus>
+                <button class="search-button" aria-label="发送消息"><i class="fas fa-paper-plane"></i> 发送</button>
             </div>
 
             <!-- 标题编辑模态框 -->
-            <div class="modal" id="titleEditModal">
+            <div class="modal" id="titleEditModal" role="dialog" aria-labelledby="editTitleHeader" aria-modal="true">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>编辑对话标题</h3>
-                        <span class="close-modal">&times;</span>
+                        <h3 id="editTitleHeader">编辑对话标题</h3>
+                        <button class="close-modal" aria-label="关闭">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <input type="text" id="titleInput" placeholder="输入新标题">
+                        <input type="text" id="titleInput" placeholder="输入新标题" aria-label="新标题输入框">
                     </div>
                     <div class="modal-footer">
-                        <button id="cancelTitleEdit" class="modal-btn cancel-btn">取消</button>
-                        <button id="saveTitleEdit" class="modal-btn save-btn">保存</button>
+                        <button id="cancelTitleEdit" class="modal-btn cancel-btn" aria-label="取消编辑">取消</button>
+                        <button id="saveTitleEdit" class="modal-btn save-btn" aria-label="保存标题">保存</button>
                     </div>
                 </div>
             </div>
 
             <!-- 删除确认模态框 -->
-            <div class="modal" id="deleteConfirmModal">
+            <div class="modal" id="deleteConfirmModal" role="dialog" aria-labelledby="deleteHeader" aria-modal="true">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>删除对话</h3>
-                        <span class="close-modal">&times;</span>
+                        <h3 id="deleteHeader">删除对话</h3>
+                        <button class="close-modal" aria-label="关闭">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <p>确定要删除当前对话吗？此操作不可恢复。</p>
+                        <p role="alert">确定要删除当前对话吗？此操作不可恢复。</p>
                     </div>
                     <div class="modal-footer">
-                        <button id="cancelDelete" class="modal-btn cancel-btn">取消</button>
-                        <button id="confirmDelete" class="modal-btn delete-btn">删除</button>
+                        <button id="cancelDelete" class="modal-btn cancel-btn" aria-label="取消删除">取消</button>
+                        <button id="confirmDelete" class="modal-btn delete-btn" aria-label="确认删除">删除</button>
                     </div>
                 </div>
             </div>
         </main>
+        <div class="notification"></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
     <script src="./index.js"></script>

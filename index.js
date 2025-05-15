@@ -51,31 +51,29 @@ function scrollToBottom() {
 // 通知系统
 function showNotification(message, type = 'info', duration = 3000) {
   // 创建通知元素
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.innerHTML = `
-    <div class="notification-content">
+  // 获取或创建通知容器
+  let notification = document.querySelector('.notification');
+  console.log(notification);
+
+  // 创建通知内容元素
+  const notificationContent = document.createElement('div');
+  notificationContent.className = `notification-content notification-${type}`;
+  notificationContent.innerHTML = `
       ${type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' :
       type === 'success' ? '<i class="fas fa-check-circle"></i>' :
         '<i class="fas fa-info-circle"></i>'}
       <span>${message}</span>
-    </div>
   `;
-
   // 添加到页面
-  document.body.appendChild(notification);
-
-  // 使用动画显示
-  setTimeout(() => {
-    notification.classList.add('show');
-  }, 10);
+  notification.appendChild(notificationContent);
 
   // 定时关闭
   setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => {
-      document.body.removeChild(notification);
-    }, 300); // 等待动画完成
+    // 检查通知元素及其父节点是否存在,避免DOM错误
+    if (notificationContent && notificationContent.parentNode) {
+      // 从父节点中移除通知元素
+      notificationContent.parentNode.removeChild(notificationContent);
+    }
   }, duration);
 }
 
@@ -193,6 +191,7 @@ async function streamResponse(prompt) {
         console.error("解析响应失败:", error);
       }
     }
+    scrollToBottom();
     STATE.chatHistory.push({ role: "chat", content: result });
     return result;
   } catch (error) {
@@ -320,57 +319,8 @@ function handleCopyButtonClick(event) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(code)
       .then(() => showCopySuccess(button))
-    // .catch(() => fallbackCopyMethod(code, button));
   }
-  // else {
-  //   // 回退到传统方法
-  //   fallbackCopyMethod(code, button);
-  // }
 }
-
-// // 传统的复制方法（兼容性更好）
-// function fallbackCopyMethod(text, button) {
-//   try {
-//     // 创建临时文本区域
-//     const textArea = document.createElement('textarea');
-//     textArea.value = text;
-
-//     // 设置样式使其不可见
-//     textArea.style.position = 'fixed';
-//     textArea.style.left = '-999999px';
-//     textArea.style.top = '-999999px';
-//     document.body.appendChild(textArea);
-
-//     // 保存当前活动元素
-//     const activeElement = document.activeElement;
-
-//     // 选择并复制
-//     textArea.focus();
-//     textArea.select();
-
-//     // 执行复制命令
-//     const successful = document.execCommand('copy');
-
-//     // 恢复焦点
-//     if (activeElement) {
-//       activeElement.focus();
-//     }
-
-//     // 移除临时元素
-//     document.body.removeChild(textArea);
-
-//     // 根据结果显示反馈
-//     if (successful) {
-//       showCopySuccess(button);
-//     } else {
-//       showCopyError(button);
-//     }
-//   } catch (err) {
-//     console.error('复制失败:', err);
-//     showCopyError(button);
-//     showNotification('复制失败: ' + (err.message || '未知错误'), 'error');
-//   }
-// }
 
 // ===================== 会话管理器 =====================
 // 会话管理功能，包含历史记录的增删查改、分片存储等
@@ -592,7 +542,7 @@ const SessionManager = {
         list.appendChild(emptyDiv);
         return;
       }
-
+      const fragment = document.createDocumentFragment();
       history.forEach(item => {
         const li = document.createElement('li');
         li.setAttribute('data-id', item.id);
@@ -647,8 +597,9 @@ const SessionManager = {
         li.appendChild(menu);
 
         // 添加li到列表
-        list.appendChild(li);
+        fragment.appendChild(li);
       });
+      list.appendChild(fragment);
     } catch (error) {
       console.error("渲染历史记录失败:", error);
       showNotification('历史记录渲染失败', 'error');
@@ -693,6 +644,9 @@ async function Send() {
 
     let session;
     let history = SessionManager.getHistory();
+    const saveHistoryDebounced = debounce((history) => {
+      SessionManager.saveHistory(history);
+    }, 1000);
 
     if (!STATE.currentSessionId || !history.find(s => s.id === STATE.currentSessionId)) {
       // 只在没有当前会话ID或找不到对应会话时创建新会话
@@ -709,8 +663,7 @@ async function Send() {
     }
     // 添加用户消息
     session.messages.push({ role: "user", content: inputs });
-    // 立即保存用户消息
-    SessionManager.saveHistory(history)
+    saveHistoryDebounced(history);
 
     content.innerHTML += user(inputs);
     scrollToBottom(); // 添加用户消息后滚动
@@ -724,16 +677,12 @@ async function Send() {
     if (aiResponse) {
       console.log("收到AI响应，长度:", aiResponse.length);
       session.messages.push({ role: "chat", content: aiResponse });
-      SessionManager.saveHistory(history)
+      saveHistoryDebounced(SessionManager.getHistory());
     }
 
   } catch (error) {
     console.error("发送请求错误:", error);
     // 显示错误信息给用户
-    const errorDiv = document.createElement("div");
-    errorDiv.classList.add("message", "message-ai", "error-message");
-    errorDiv.innerHTML = '<div class="content-text">请求发生错误，请检查网络连接或Ollama服务是否正常运行。</div>';
-    content.appendChild(errorDiv);
 
     // 添加错误消息到会话
     if (STATE.currentSessionId) {
@@ -847,11 +796,24 @@ function setupEventListeners() {
       }
     }
 
+    document.querySelector('.chat-title').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelector('.title-actions').style.opacity = '1';
+    });
+
+    document.querySelector('.chat-title').addEventListener('mouseleave', () => {
+      document.querySelector('.title-actions').style.opacity = '0';
+    });
+
     // 处理三点菜单图标点击
     if (e.target.closest('.history-actions-icon')) {
       e.stopPropagation();
       const icon = e.target.closest('.history-actions-icon');
       const listItem = icon.closest('li');
+      document.querySelectorAll('aside ul li').forEach(e => {
+        e.style.zIndex = '0'
+      })
+      listItem.style.zIndex = '2'
       const sessionId = listItem.getAttribute('data-id');
 
       // 关闭所有其他菜单
